@@ -36,12 +36,11 @@ Release/
 .vscode/tasks.json
 .vscode/launch.json
 .vscode/c_cpp_properties.json
-*.vcxproj
 *.vcxproj.user
 *.suo
 *.user
 *.userosscache
-*.sln
+*.sln.docstates
 *.sdf
 *.dbmdl
 *.opendb
@@ -105,3 +104,9 @@ Thumbs.db
 *.exe
 *.out
 *.app
+
+# Visual Studio 관련 파일들
+# .vcxproj 파일 포함, 다른 Visual Studio 관련 파일 제외
+!*.vcxproj
+!*.vcxproj.filters
+!*.sln
