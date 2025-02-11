@@ -110,3 +110,6 @@ Thumbs.db
 !*.vcxproj
 !*.vcxproj.filters
 !*.sln
+
+# C# obj 폴더 무시
+obj/
