@@ -1,10 +1,11 @@
-#pragma once
+﻿#pragma once
 #include <functional>
 
 /*---------
 	Job
 ----------*/
 
+// 함수 객체 선언, ()로 제공되면 펑터인가 보다.
 using CallbackType = std::function<void()>;
 
 class Job
