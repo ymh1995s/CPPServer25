@@ -1,62 +1,68 @@
 syntax = "proto3";
 package Protocol;
 
-message ObjectInfo {
-  uint32 objectId = 1;
-  repeated PositionInfo posInfo = 2;
-  repeated StatInfo statInfo = 3;
+import "Enum.proto";
+import "Struct.proto";
+
+message C_LOGIN
+{
+
 }
 
-message PositionInfo {
-  float currentPosX = 1;
-  float currentPosY = 2;
-  float currentPosZ = 3;
-  float destinationPosX = 4;
-  float destinationPosY = 5;
-  float destinationPosZ = 6;
-  float rotateY = 7;
+message S_LOGIN
+{
+	bool success = 1;
+	repeated ObjectInfo players = 2;
 }
 
-message StatInfo {
-  uint32 level = 1;
-  uint32 life = 2;
-  float speed = 3;
+message C_ENTER_GAME
+{
+	uint64 playerIndex = 1;
 }
 
-message AnimInfo {
-  uint32 state = 1;
+message S_ENTER_GAME
+{
+	bool success = 1;
+	ObjectInfo player = 2;
 }
 
-message S_ENTER {
-  repeated ObjectInfo objectInfo = 1;
+message C_LEAVE_GAME
+{
+
 }
 
-message S_LEAVE {
+message S_LEAVE_GAME
+{
+
 }
 
-message C_MOVE {
-  repeated PositionInfo posInfo = 1;  
-  repeated AnimInfo animInfo = 2;  
+message S_SPAWN
+{
+	repeated ObjectInfo players = 1;
 }
 
-message S_MOVE {
-  uint32 objectId = 1;
-  repeated PositionInfo posInfo = 2;
-  repeated AnimInfo animInfo = 3;  
+message S_DESPAWN
+{
+	repeated uint64 object_ids = 1;
 }
 
-message S_SPAWN {
-  repeated ObjectInfo objects = 1;
+message C_MOVE
+{
+	PosInfo info = 1;
 }
 
-message S_DESPAWN {
-  repeated int32 objectIds = 1;
+message S_MOVE
+{
+	PosInfo info = 1;
 }
 
-message C_DIE {
-  uint32 objectId = 1;
+message C_CHAT
+{
+	string msg = 1;
 }
 
-message S_TRAPEXECUTE {
-  repeated uint32 trapNo = 1;
+message S_CHAT
+{
+	uint64 playerId = 1;
+	string msg = 2;
 }

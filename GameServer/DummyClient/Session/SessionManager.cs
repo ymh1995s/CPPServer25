@@ -1,5 +1,4 @@
-﻿using Google.Protobuf.Protocol;
-using Google.Protobuf.WellKnownTypes;
+﻿using Google.Protobuf.WellKnownTypes;
 using CSharpServerCore;
 using System;
 using System.Collections.Generic;
@@ -7,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Protocol;
 
 namespace DummyClient.Session
 {
@@ -46,12 +46,7 @@ namespace DummyClient.Session
             {
                 foreach (var session in _sessions)
                 {
-                    C_Move dummyMovePacket = new C_Move();
-                    dummyMovePacket.PosInfo = session.Value.SetNextPos();
-                    AnimInfo animInfo = new AnimInfo();
-                    animInfo.State = 1;
-                    dummyMovePacket.AnimInfo = animInfo;
-                    session.Value.Send(dummyMovePacket);
+                    C_MOVE dummyMovePacket = new C_MOVE();
                     Console.WriteLine( "Send 1Packet To Server");
                 }
             }

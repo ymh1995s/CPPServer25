@@ -1,9 +1,9 @@
 ﻿using CSharpServerCore;
 using Google.Protobuf;
-using Google.Protobuf.Protocol;
 using CSharpServerCore;
 using System;
 using System.Collections.Generic;
+using Protocol;
 
 class PacketManager
 {
@@ -24,21 +24,31 @@ class PacketManager
 
     public Action<PacketSession, IMessage, ushort> CustomHandler { get; set; }
 
+    enum MsgId
+    {
+        SEnter,
+        SLeave,
+        SMove,
+        SSpawn,
+        SDespawn,
+        SChat
+    }
+
     // Register()는 멀티스레드가 개입 되기 전 호출되어야함
     public void Register()
     {
-        _onRecv.Add((ushort)MsgId.SEnter, MakePacket<S_Enter>);
+        _onRecv.Add((ushort)MsgId.SEnter, MakePacket<S_ENTER_GAME>);
         _handler.Add((ushort)MsgId.SEnter, PacketHandler.S_EnterHandler);
-        _onRecv.Add((ushort)MsgId.SLeave, MakePacket<S_Leave>);
+        _onRecv.Add((ushort)MsgId.SLeave, MakePacket<S_LEAVE_GAME>);
         _handler.Add((ushort)MsgId.SLeave, PacketHandler.S_LeaveHandler);
-        _onRecv.Add((ushort)MsgId.SMove, MakePacket<S_Move>);
+        _onRecv.Add((ushort)MsgId.SMove, MakePacket<S_MOVE>);
         _handler.Add((ushort)MsgId.SMove, PacketHandler.S_MoveHandler);
-        _onRecv.Add((ushort)MsgId.SSpawn, MakePacket<S_Spawn>);
+        _onRecv.Add((ushort)MsgId.SSpawn, MakePacket<S_SPAWN>);
         _handler.Add((ushort)MsgId.SSpawn, PacketHandler.S_SpawnHandler);
-        _onRecv.Add((ushort)MsgId.SDespawn, MakePacket<S_Despawn>);
+        _onRecv.Add((ushort)MsgId.SDespawn, MakePacket<S_DESPAWN>);
         _handler.Add((ushort)MsgId.SDespawn, PacketHandler.S_DespawnHandler);
-        _onRecv.Add((ushort)MsgId.STrapexecute, MakePacket<S_Trapexecute>);
-        _handler.Add((ushort)MsgId.STrapexecute, PacketHandler.S_TrapexecuteHandler);
+        _onRecv.Add((ushort)MsgId.SChat, MakePacket<S_CHAT>);
+        _handler.Add((ushort)MsgId.SChat, PacketHandler.SChatHandler);
     }
 
     // 지금 수신한 이 패킷을 딕셔너리에서 찾고

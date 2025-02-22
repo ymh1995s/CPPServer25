@@ -1,6 +1,6 @@
 ﻿using CSharpServerCore;
 using Google.Protobuf;
-using Google.Protobuf.Protocol;
+using Protocol;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,22 +12,27 @@ namespace DummyClient.Session
 {
     class ServerSession : PacketSession
     {
-        public PositionInfo dummyPosition { get; private set; } = new PositionInfo();
+        public PosInfo dummyPosition { get; private set; } = new PosInfo();
 
         Random _rand = new Random();
 
         public ServerSession()
         {
             // 시작 위치를 랜덤으로 정한다.
-            dummyPosition.DestinationPosX = _rand.Next(-20, 20);
-            dummyPosition.DestinationPosY = _rand.Next(0, 5);
-            dummyPosition.DestinationPosZ = _rand.Next(-20, 20);
+            dummyPosition.X = _rand.Next(-20, 20);
+            dummyPosition.Y = _rand.Next(0, 5);
+            dummyPosition.Z = _rand.Next(-20, 20);
         }
 
-        public PositionInfo SetNextPos()
+        public PosInfo SetNextPos()
         {
             //dummyPosition.DestinationPosX += 0.02f;
             return dummyPosition;
+        }
+
+        enum MsgId
+        {
+            C_MOVE
         }
 
         public void Send(IMessage packet)
