@@ -27,7 +27,7 @@ namespace DummyClient
             while (true)
             {
                 SessionManager.Instance.SendForEach();
-                Thread.Sleep(250);  // 250 : 4프레임, 100 : 약 10프레임,  33 : 약 30프레임
+                Thread.Sleep(2000);  // 250 : 4프레임, 100 : 약 10프레임,  33 : 약 30프레임
             }
         }
     }

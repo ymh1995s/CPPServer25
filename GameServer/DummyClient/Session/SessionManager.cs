@@ -52,6 +52,7 @@ namespace DummyClient.Session
                     animInfo.State = 1;
                     dummyMovePacket.AnimInfo = animInfo;
                     session.Value.Send(dummyMovePacket);
+                    Console.WriteLine( "Send 1Packet To Server");
                 }
             }
         }

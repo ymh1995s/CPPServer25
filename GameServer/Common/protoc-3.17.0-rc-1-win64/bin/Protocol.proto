@@ -1,17 +1,62 @@
 syntax = "proto3";
 package Protocol;
 
-message BuffData
-{
-	uint64 buffId = 1;
-	float remainTime = 2;
-	repeated uint64 victims = 3;
+message ObjectInfo {
+  uint32 objectId = 1;
+  repeated PositionInfo posInfo = 2;
+  repeated StatInfo statInfo = 3;
 }
 
-message S_TEST
-{
-	uint64 id = 1;
-	uint32 hp = 2;
-	uint32 attack = 3;
-	repeated BuffData buffs = 4;
+message PositionInfo {
+  float currentPosX = 1;
+  float currentPosY = 2;
+  float currentPosZ = 3;
+  float destinationPosX = 4;
+  float destinationPosY = 5;
+  float destinationPosZ = 6;
+  float rotateY = 7;
+}
+
+message StatInfo {
+  uint32 level = 1;
+  uint32 life = 2;
+  float speed = 3;
+}
+
+message AnimInfo {
+  uint32 state = 1;
+}
+
+message S_ENTER {
+  repeated ObjectInfo objectInfo = 1;
+}
+
+message S_LEAVE {
+}
+
+message C_MOVE {
+  repeated PositionInfo posInfo = 1;  
+  repeated AnimInfo animInfo = 2;  
+}
+
+message S_MOVE {
+  uint32 objectId = 1;
+  repeated PositionInfo posInfo = 2;
+  repeated AnimInfo animInfo = 3;  
+}
+
+message S_SPAWN {
+  repeated ObjectInfo objects = 1;
+}
+
+message S_DESPAWN {
+  repeated int32 objectIds = 1;
+}
+
+message C_DIE {
+  uint32 objectId = 1;
+}
+
+message S_TRAPEXECUTE {
+  repeated uint32 trapNo = 1;
 }
