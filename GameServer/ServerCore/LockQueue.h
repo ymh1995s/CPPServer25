@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 template<typename T>
 class LockQueue
@@ -16,7 +16,6 @@ public:
 		return PopNoLock();
 	}
 
-	// 넌 언제 쓰니?
 	T PopNoLock()
 	{
 		if (_items.empty())

@@ -1,4 +1,4 @@
-ï»¿#include "pch.h"
+#include "pch.h"
 #include "JobTimer.h"
 #include "JobQueue.h"
 
@@ -18,7 +18,7 @@ void JobTimer::Reserve(uint64 tickAfter, weak_ptr<JobQueue> owner, JobRef job)
 
 void JobTimer::Distribute(uint64 now)
 {
-	// í•œ ë²ˆì— 1 ì“°ë ˆë“œë§Œ í†µê³¼
+	// ÇÑ ¹ø¿¡ 1 ¾²·¹µå¸¸ Åë°ú
 	if (_distributing.exchange(true) == true)
 		return;
 
@@ -43,10 +43,10 @@ void JobTimer::Distribute(uint64 now)
 		if (JobQueueRef owner = item.jobData->owner.lock())
 			owner->Push(item.jobData->job);
 
-		delete item.jobData;
+		delete item.jobData;		
 	}
 
-	// ëë‚¬ìœ¼ë©´ í’€ì–´ì¤€ë‹¤
+	// ³¡³µÀ¸¸é Ç®¾îÁØ´Ù
 	_distributing.store(false);
 }
 

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "NetAddress.h"
 #include "IocpCore.h"
 #include "Listener.h"
@@ -13,7 +13,7 @@ enum class ServiceType : uint8
 /*-------------
 	Service
 --------------*/
-// 서비스란 정확히 뭐지? 분산 서버를 위한 세션 확장? 
+
 using SessionFactory = function<SessionRef(void)>;
 
 class Service : public enable_shared_from_this<Service>
@@ -38,7 +38,7 @@ public:
 public:
 	ServiceType			GetServiceType() { return _type; }
 	NetAddress			GetNetAddress() { return _netAddress; }
-	IocpCoreRef& GetIocpCore() { return _iocpCore; }
+	IocpCoreRef&		GetIocpCore() { return _iocpCore; }
 
 protected:
 	USE_LOCK;

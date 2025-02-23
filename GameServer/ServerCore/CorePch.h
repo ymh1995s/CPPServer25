@@ -29,4 +29,4 @@ using namespace std;
 #include "Session.h"
 #include "JobQueue.h"
 
-void HelloWorld();
+

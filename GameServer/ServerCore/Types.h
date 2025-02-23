@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <mutex>
 #include <atomic>
@@ -13,8 +13,13 @@ using uint16 = unsigned __int16;
 using uint32 = unsigned __int32;
 using uint64 = unsigned __int64;
 
-// 세션 데이터 유지를 위한 레퍼런스 카운트
-// TODO 여기 기재되는 클래스의 기준을 좀 더 자세히 명시
+//template<typename T>
+//using Atomic = std::atomic<T>;
+//using Mutex = std::mutex;
+//using CondVar = std::condition_variable;
+//using UniqueLock = std::unique_lock<std::mutex>;
+//using LockGuard = std::lock_guard<std::mutex>;
+
 #define USING_SHARED_PTR(name)	using name##Ref = std::shared_ptr<class name>;
 
 USING_SHARED_PTR(IocpCore);
@@ -32,3 +37,5 @@ USING_SHARED_PTR(JobQueue);
 #define size32(val)		static_cast<int32>(sizeof(val))
 #define len16(arr)		static_cast<int16>(sizeof(arr)/sizeof(arr[0]))
 #define len32(arr)		static_cast<int32>(sizeof(arr)/sizeof(arr[0]))
+
+//#define _STOMP

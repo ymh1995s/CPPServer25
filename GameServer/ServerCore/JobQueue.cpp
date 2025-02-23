@@ -1,4 +1,4 @@
-ï»¿#include "pch.h"
+#include "pch.h"
 #include "JobQueue.h"
 #include "GlobalQueue.h"
 
@@ -11,23 +11,23 @@ void JobQueue::Push(JobRef job, bool pushOnly)
 	const int32 prevCount = _jobCount.fetch_add(1);
 	_jobs.Push(job); // WRITE_LOCK
 
-	// ì²«ë²ˆì§¸ Jobì„ ë„£ì€ ì“°ë ˆë“œê°€ ì‹¤í–‰ê¹Œì§€ ë‹´ë‹¹
+	// Ã¹¹øÂ° JobÀ» ³ÖÀº ¾²·¹µå°¡ ½ÇÇà±îÁö ´ã´ç
 	if (prevCount == 0)
 	{
-		// ì´ë¯¸ ì‹¤í–‰ì¤‘ì¸ JobQueueê°€ ì—†ìœ¼ë©´ ì‹¤í–‰
+		// ÀÌ¹Ì ½ÇÇàÁßÀÎ JobQueue°¡ ¾øÀ¸¸é ½ÇÇà
 		if (LCurrentJobQueue == nullptr && pushOnly == false)
 		{
 			Execute();
 		}
 		else
 		{
-			// ì—¬ìœ  ìˆëŠ” ë‹¤ë¥¸ ì“°ë ˆë“œê°€ ì‹¤í–‰í•˜ë„ë¡ GlobalQueueì— ë„˜ê¸´ë‹¤
+			// ¿©À¯ ÀÖ´Â ´Ù¸¥ ¾²·¹µå°¡ ½ÇÇàÇÏµµ·Ï GlobalQueue¿¡ ³Ñ±ä´Ù
 			GGlobalQueue->Push(shared_from_this());
 		}
 	}
 }
 
-// 1) ì¼ê°ì´ ë„ˆ~ë¬´ ëª°ë¦¬ë©´?
+// 1) ÀÏ°¨ÀÌ ³Ê~¹« ¸ô¸®¸é?
 void JobQueue::Execute()
 {
 	LCurrentJobQueue = this;
@@ -41,7 +41,7 @@ void JobQueue::Execute()
 		for (int32 i = 0; i < jobCount; i++)
 			jobs[i]->Execute();
 
-		// ë‚¨ì€ ì¼ê°ì´ 0ê°œë¼ë©´ ì¢…ë£Œ
+		// ³²Àº ÀÏ°¨ÀÌ 0°³¶ó¸é Á¾·á
 		if (_jobCount.fetch_sub(jobCount) == jobCount)
 		{
 			LCurrentJobQueue = nullptr;
@@ -52,9 +52,9 @@ void JobQueue::Execute()
 		if (now >= LEndTickCount)
 		{
 			LCurrentJobQueue = nullptr;
-			// ì—¬ìœ  ìˆëŠ” ë‹¤ë¥¸ ì“°ë ˆë“œê°€ ì‹¤í–‰í•˜ë„ë¡ GlobalQueueì— ë„˜ê¸´ë‹¤
+			// ¿©À¯ ÀÖ´Â ´Ù¸¥ ¾²·¹µå°¡ ½ÇÇàÇÏµµ·Ï GlobalQueue¿¡ ³Ñ±ä´Ù
 			GGlobalQueue->Push(shared_from_this());
 			break;
-		}
+		}			
 	}
 }

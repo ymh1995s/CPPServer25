@@ -1,6 +1,6 @@
-ï»¿#pragma once
+#pragma once
 
-#define WIN32_LEAN_AND_MEAN // ê±°ì˜ ì‚¬ìš©ë˜ì§€ ì•ŠëŠ” ë‚´ìš©ì„ Windows í—¤ë”ì—ì„œ ì œì™¸í•©ë‹ˆë‹¤.
+#define WIN32_LEAN_AND_MEAN // °ÅÀÇ »ç¿ëµÇÁö ¾Ê´Â ³»¿ëÀ» Windows Çì´õ¿¡¼­ Á¦¿ÜÇÕ´Ï´Ù.
 
 #ifdef _DEBUG
 #pragma comment(lib, "ServerCore\\Debug\\ServerCore.lib")
@@ -12,7 +12,11 @@
 
 #include "CorePch.h"
 
+#include "Protocol.pb.h"
+#include "Enum.pb.h"
+#include "Struct.pb.h"
 #include "ServerPacketHandler.h"
+#include "Utils.h"
 #include "GameSession.h"
 
 USING_SHARED_PTR(GameSession);

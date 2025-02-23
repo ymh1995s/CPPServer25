@@ -8,33 +8,33 @@
 //#include "ClientPacketHandler.h"
 #include <tchar.h>
 #include "Job.h"
+#include "Protocol.pb.h"
+#include "Room.h"
 
-//enum
-//{
-//	WORKER_TICK = 64
-//};
-//
-//void DoWorkerJob(ServerServiceRef& service)
-//{
-//	while (true)
-//	{
-//		LEndTickCount = ::GetTickCount64() + WORKER_TICK;
-//
-//		// 네트워크 입출력 처리 -> 인게임 로직까지 (패킷 핸들러에 의해)
-//		service->GetIocpCore()->Dispatch(10);
-//
-//		// 예약된 일감 처리
-//		ThreadManager::DistributeReservedJobs();
-//
-//		// 글로벌 큐
-//		ThreadManager::DoGlobalQueueWork();
-//	}
-//}
+enum
+{
+	WORKER_TICK = 64
+};
+
+void DoWorkerJob(ServerServiceRef& service)
+{
+	while (true)
+	{
+		LEndTickCount = ::GetTickCount64() + WORKER_TICK;
+
+		// 네트워크 입출력 처리 -> 인게임 로직까지 (패킷 핸들러에 의해)
+		service->GetIocpCore()->Dispatch(10);
+
+		// 예약된 일감 처리
+		ThreadManager::DistributeReservedJobs();
+
+		// 글로벌 큐
+		ThreadManager::DoGlobalQueueWork();
+	}
+}
 
 int main()
 {
-	HelloWorld(); // IOCPCore 함수 가져오기 테스트
-
 	ServerPacketHandler::Init();
 
 	ServerServiceRef service = make_shared<ServerService>(
@@ -45,13 +45,18 @@ int main()
 
 	ASSERT_CRASH(service->Start());
 
-	//for (int32 i = 0; i < 5; i++)
-	//{
-	//	GThreadManager->Launch([&service]()
-	//		{
-	//			DoWorkerJob(service);
-	//		});
-	//}
+	for (int32 i = 0; i < 5; i++)
+	{
+		GThreadManager->Launch([&service]()
+			{
+				DoWorkerJob(service);
+			});
+	}
+
+	// Main Thread
+	//DoWorkerJob(service);
+
+	GRoom->DoAsync(&Room::UpdateTick);
 
 	while (true)
 	{

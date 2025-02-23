@@ -1,4 +1,4 @@
-ï»¿#include "pch.h"
+#include "pch.h"
 #include "Session.h"
 #include "SocketUtils.h"
 #include "Service.h"
@@ -24,7 +24,7 @@ void Session::Send(SendBufferRef sendBuffer)
 
 	bool registerSend = false;
 
-	// í˜„ì¬ RegisterSendê°€ ê±¸ë¦¬ì§€ ì•Šì€ ìƒíƒœë¼ë©´, ê±¸ì–´ì¤€ë‹¤
+	// ÇöÀç RegisterSend°¡ °É¸®Áö ¾ÊÀº »óÅÂ¶ó¸é, °É¾îÁØ´Ù
 	{
 		WRITE_LOCK;
 
@@ -91,7 +91,7 @@ bool Session::RegisterConnect()
 	if (SocketUtils::SetReuseAddress(_socket, true) == false)
 		return false;
 
-	if (SocketUtils::BindAnyAddress(_socket, 0/*ë‚¨ëŠ”ê±°*/) == false)
+	if (SocketUtils::BindAnyAddress(_socket, 0/*³²´Â°Å*/) == false)
 		return false;
 
 	_connectEvent.Init();
@@ -144,7 +144,7 @@ void Session::RegisterRecv()
 
 	DWORD numOfBytes = 0;
 	DWORD flags = 0;
-	if (SOCKET_ERROR == ::WSARecv(_socket, &wsaBuf, 1, OUT & numOfBytes, OUT & flags, &_recvEvent, nullptr))
+	if (SOCKET_ERROR == ::WSARecv(_socket, &wsaBuf, 1, OUT &numOfBytes, OUT &flags, &_recvEvent, nullptr))
 	{
 		int32 errorCode = ::WSAGetLastError();
 		if (errorCode != WSA_IO_PENDING)
@@ -163,7 +163,7 @@ void Session::RegisterSend()
 	_sendEvent.Init();
 	_sendEvent.owner = shared_from_this(); // ADD_REF
 
-	// ë³´ë‚¼ ë°ì´í„°ë¥¼ sendEventì— ë“±ë¡
+	// º¸³¾ µ¥ÀÌÅÍ¸¦ sendEvent¿¡ µî·Ï
 	{
 		//WRITE_LOCK;
 
@@ -173,14 +173,14 @@ void Session::RegisterSend()
 			SendBufferRef sendBuffer = _sendQueue.front();
 
 			writeSize += sendBuffer->WriteSize();
-			// TODO : ì˜ˆì™¸ ì²´í¬
+			// TODO : ¿¹¿Ü Ã¼Å©
 
 			_sendQueue.pop();
 			_sendEvent.sendBuffers.push_back(sendBuffer);
 		}
 	}
 
-	// Scatter-Gather (í©ì–´ì ¸ ìˆëŠ” ë°ì´í„°ë“¤ì„ ëª¨ì•„ì„œ í•œ ë°©ì— ë³´ë‚¸ë‹¤)
+	// Scatter-Gather (Èğ¾îÁ® ÀÖ´Â µ¥ÀÌÅÍµéÀ» ¸ğ¾Æ¼­ ÇÑ ¹æ¿¡ º¸³½´Ù)
 	vector<WSABUF> wsaBufs;
 	wsaBufs.reserve(_sendEvent.sendBuffers.size());
 	for (SendBufferRef sendBuffer : _sendEvent.sendBuffers)
@@ -192,7 +192,7 @@ void Session::RegisterSend()
 	}
 
 	DWORD numOfBytes = 0;
-	if (SOCKET_ERROR == ::WSASend(_socket, wsaBufs.data(), static_cast<DWORD>(wsaBufs.size()), OUT & numOfBytes, 0, &_sendEvent, nullptr))
+	if (SOCKET_ERROR == ::WSASend(_socket, wsaBufs.data(), static_cast<DWORD>(wsaBufs.size()), OUT &numOfBytes, 0, &_sendEvent, nullptr))
 	{
 		int32 errorCode = ::WSAGetLastError();
 		if (errorCode != WSA_IO_PENDING)
@@ -211,13 +211,13 @@ void Session::ProcessConnect()
 
 	_connected.store(true);
 
-	// ì„¸ì…˜ ë“±ë¡
+	// ¼¼¼Ç µî·Ï
 	GetService()->AddSession(GetSessionRef());
 
-	// ì»¨í…ì¸  ì½”ë“œì—ì„œ ì¬ì •ì˜
+	// ÄÁÅÙÃ÷ ÄÚµå¿¡¼­ ÀçÁ¤ÀÇ
 	OnConnected();
 
-	// ìˆ˜ì‹  ë“±ë¡
+	// ¼ö½Å µî·Ï
 	RegisterRecv();
 }
 
@@ -225,7 +225,7 @@ void Session::ProcessDisconnect()
 {
 	_disconnectEvent.owner = nullptr; // RELEASE_REF
 
-	OnDisconnected(); // ì»¨í…ì¸  ì½”ë“œì—ì„œ ì¬ì •ì˜
+	OnDisconnected(); // ÄÁÅÙÃ÷ ÄÚµå¿¡¼­ ÀçÁ¤ÀÇ
 	GetService()->ReleaseSession(GetSessionRef());
 }
 
@@ -246,17 +246,17 @@ void Session::ProcessRecv(int32 numOfBytes)
 	}
 
 	int32 dataSize = _recvBuffer.DataSize();
-	int32 processLen = OnRecv(_recvBuffer.ReadPos(), dataSize); // ì»¨í…ì¸  ì½”ë“œì—ì„œ ì¬ì •ì˜
+	int32 processLen = OnRecv(_recvBuffer.ReadPos(), dataSize); // ÄÁÅÙÃ÷ ÄÚµå¿¡¼­ ÀçÁ¤ÀÇ
 	if (processLen < 0 || dataSize < processLen || _recvBuffer.OnRead(processLen) == false)
 	{
 		Disconnect(L"OnRead Overflow");
 		return;
 	}
-
-	// ì»¤ì„œ ì •ë¦¬
+	
+	// Ä¿¼­ Á¤¸®
 	_recvBuffer.Clean();
 
-	// ìˆ˜ì‹  ë“±ë¡
+	// ¼ö½Å µî·Ï
 	RegisterRecv();
 }
 
@@ -271,7 +271,7 @@ void Session::ProcessSend(int32 numOfBytes)
 		return;
 	}
 
-	// ì»¨í…ì¸  ì½”ë“œì—ì„œ ì¬ì •ì˜
+	// ÄÁÅÙÃ÷ ÄÚµå¿¡¼­ ÀçÁ¤ÀÇ
 	OnSend(numOfBytes);
 
 	WRITE_LOCK;
@@ -317,16 +317,16 @@ int32 PacketSession::OnRecv(BYTE* buffer, int32 len)
 	while (true)
 	{
 		int32 dataSize = len - processLen;
-		// ìµœì†Œí•œ í—¤ë”ëŠ” íŒŒì‹±í•  ìˆ˜ ìˆì–´ì•¼ í•œë‹¤
+		// ÃÖ¼ÒÇÑ Çì´õ´Â ÆÄ½ÌÇÒ ¼ö ÀÖ¾î¾ß ÇÑ´Ù
 		if (dataSize < sizeof(PacketHeader))
 			break;
 
 		PacketHeader header = *(reinterpret_cast<PacketHeader*>(&buffer[processLen]));
-		// í—¤ë”ì— ê¸°ë¡ëœ íŒ¨í‚· í¬ê¸°ë¥¼ íŒŒì‹±í•  ìˆ˜ ìˆì–´ì•¼ í•œë‹¤
+		// Çì´õ¿¡ ±â·ÏµÈ ÆĞÅ¶ Å©±â¸¦ ÆÄ½ÌÇÒ ¼ö ÀÖ¾î¾ß ÇÑ´Ù
 		if (dataSize < header.size)
 			break;
 
-		// íŒ¨í‚· ì¡°ë¦½ ì„±ê³µ
+		// ÆĞÅ¶ Á¶¸³ ¼º°ø
 		OnRecvPacket(&buffer[processLen], header.size);
 
 		processLen += header.size;

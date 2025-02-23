@@ -1,8 +1,10 @@
-ï»¿#pragma once
+#pragma once
 #include "IocpCore.h"
 #include "IocpEvent.h"
 #include "NetAddress.h"
 #include "RecvBuffer.h"
+
+class Service;
 
 /*--------------
 	Session
@@ -10,7 +12,6 @@
 
 class Session : public IocpObject
 {
-	// privateì™€ protectedë¥¼ ì“¸ ìˆ˜ ìˆê²Œ ëš«ëŸ¬ì¤Œ 
 	friend class Listener;
 	friend class IocpCore;
 	friend class Service;
@@ -25,15 +26,16 @@ public:
 	virtual ~Session();
 
 public:
-	/* ì™¸ë¶€ì—ì„œ ì‚¬ìš© */
+						/* ¿ÜºÎ¿¡¼­ »ç¿ë */
 	void				Send(SendBufferRef sendBuffer);
 	bool				Connect();
 	void				Disconnect(const WCHAR* cause);
 
 	shared_ptr<Service>	GetService() { return _service.lock(); }
 	void				SetService(shared_ptr<Service> service) { _service = service; }
+
 public:
-	/* ì •ë³´ ê´€ë ¨ í—¬í¼ */
+						/* Á¤º¸ °ü·Ã */
 	void				SetNetAddress(NetAddress address) { _netAddress = address; }
 	NetAddress			GetAddress() { return _netAddress; }
 	SOCKET				GetSocket() { return _socket; }
@@ -41,12 +43,12 @@ public:
 	SessionRef			GetSessionRef() { return static_pointer_cast<Session>(shared_from_this()); }
 
 private:
-	/* IocpObject ì¸í„°í˜ì´ìŠ¤ êµ¬í˜„ */
+						/* ÀÎÅÍÆäÀÌ½º ±¸Çö */
 	virtual HANDLE		GetHandle() override;
 	virtual void		Dispatch(class IocpEvent* iocpEvent, int32 numOfBytes = 0) override;
 
 private:
-	/* ì „ì†¡ ê´€ë ¨ */
+						/* Àü¼Û °ü·Ã */
 	bool				RegisterConnect();
 	bool				RegisterDisconnect();
 	void				RegisterRecv();
@@ -60,7 +62,7 @@ private:
 	void				HandleError(int32 errorCode);
 
 protected:
-	/* ì»¨í…ì¸  ì½”ë“œì—ì„œ ì¬ì •ì˜ */
+						/* ÄÁÅÙÃ÷ ÄÚµå¿¡¼­ ÀçÁ¤ÀÇ */
 	virtual void		OnConnected() { }
 	virtual int32		OnRecv(BYTE* buffer, int32 len) { return len; }
 	virtual void		OnSend(int32 len) { }
@@ -74,15 +76,15 @@ private:
 
 private:
 	USE_LOCK;
-	/* ìˆ˜ì‹  ê´€ë ¨ */
+							/* ¼ö½Å °ü·Ã */
 	RecvBuffer				_recvBuffer;
 
-	/* ì†¡ì‹  ê´€ë ¨ */
+							/* ¼Û½Å °ü·Ã */
 	queue<SendBufferRef>	_sendQueue;
 	atomic<bool>			_sendRegistered = false;
 
 private:
-	/* IocpEvent ì¬ì‚¬ìš© */
+						/* IocpEvent Àç»ç¿ë */
 	ConnectEvent		_connectEvent;
 	DisconnectEvent		_disconnectEvent;
 	RecvEvent			_recvEvent;
@@ -96,7 +98,7 @@ private:
 struct PacketHeader
 {
 	uint16 size;
-	uint16 id; // í”„ë¡œí† ì½œID (ex. 1=ë¡œê·¸ì¸, 2=ì´ë™ìš”ì²­)
+	uint16 id; // ÇÁ·ÎÅäÄİID (ex. 1=·Î±×ÀÎ, 2=ÀÌµ¿¿äÃ»)
 };
 
 class PacketSession : public Session
