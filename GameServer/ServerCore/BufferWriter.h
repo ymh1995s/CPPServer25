@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /*----------------
 	BufferWriter
@@ -23,6 +23,15 @@ public:
 	template<typename T>
 	T*				Reserve();
 
+	/* 강의 사용 예시
+		BufferWriter bw(sendBuffer->Buffer(), 4096);
+
+		PacketHeader* header = bw.Reserve<PacketHeader>();
+		// id(uint64), 체력(uint32), 공격력(uint16)
+		bw << (uint64)1001 << (uint32)100 << (uint16)10;
+		// bw.operator<<((uint64)1001).operator<<((uint32)100).operator<<((uint16)10);와 같다.
+		bw.Write(sendData, sizeof(sendData));
+	*/
 	template<typename T>
 	BufferWriter&	operator<<(T&& src);
 
@@ -43,11 +52,13 @@ T* BufferWriter::Reserve()
 	return ret;
 }
 
+// {T&& + forward}완벽 전달 : 왼값이면 왼값 참조로, 오른값이면 오른값 참조로.
+// T&&만 사용하면 오른값 참조
 template<typename T>
 BufferWriter& BufferWriter::operator<<(T&& src)
 {
-	using DataType = std::remove_reference_t<T>;
-	*reinterpret_cast<DataType*>(&_buffer[_pos]) = std::forward<DataType>(src);
+	using DataType = std::remove_reference_t<T>; // 참조 제거(ex. int& -> int) 버퍼에 기록할 때는 참조를 넘기지 않음
+	*reinterpret_cast<DataType*>(&_buffer[_pos]) = std::forward<DataType>(src); // 완벽 전달과 함께 쓰는 forward
 	_pos += sizeof(T);
 	return *this;
 }

@@ -1,8 +1,10 @@
-#pragma once
+﻿#pragma once
 
 template<typename T>
 class LockQueue
 {
+// 큐를 스레드 세이프하게 사용하는 클래스
+// 큐 = _items
 public:
 	void Push(T item)
 	{
@@ -16,6 +18,7 @@ public:
 		return PopNoLock();
 	}
 
+	// 래핑하는데서 락 걸어줌
 	T PopNoLock()
 	{
 		if (_items.empty())

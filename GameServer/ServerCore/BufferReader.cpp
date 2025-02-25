@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "BufferReader.h"
 
 /*----------------
@@ -25,6 +25,8 @@ bool BufferReader::Peek(void* dest, uint32 len)
 	if (FreeSize() < len)
 		return false;
 
+	// dest에 복사하여 원본 배열 훼손 없음
+	// _pos도 변경 없기 때문에 원본 배열 훼손 없음
 	::memcpy(dest, &_buffer[_pos], len);
 	return true;
 }
