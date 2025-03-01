@@ -1,10 +1,11 @@
-#pragma once
+﻿#pragma once
 #include "NetAddress.h"
 
 /*----------------
 	SocketUtils
 -----------------*/
 
+// 주요 인자만 사용하기 위한 래핑 클래스
 class SocketUtils
 {
 public:

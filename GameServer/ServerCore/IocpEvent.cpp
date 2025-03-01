@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "IocpEvent.h"
 
 /*--------------
@@ -7,7 +7,7 @@
 
 IocpEvent::IocpEvent(EventType type) : eventType(type)
 {
-	Init();
+	Init(); // OVERLAPPED 구조체 초기화
 }
 
 void IocpEvent::Init()

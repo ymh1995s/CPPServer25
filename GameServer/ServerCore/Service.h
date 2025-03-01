@@ -1,9 +1,10 @@
-#pragma once
+﻿#pragma once
 #include "NetAddress.h"
 #include "IocpCore.h"
 #include "Listener.h"
 #include <functional>
 
+// 이 서비스는 서버인가? 클라이언트인가?
 enum class ServiceType : uint8
 {
 	Server,
@@ -13,7 +14,6 @@ enum class ServiceType : uint8
 /*-------------
 	Service
 --------------*/
-
 using SessionFactory = function<SessionRef(void)>;
 
 class Service : public enable_shared_from_this<Service>
@@ -42,7 +42,7 @@ public:
 
 protected:
 	USE_LOCK;
-	ServiceType			_type;
+	ServiceType			_type; // 서비스 타입 (서버 또는 클라이언트)
 	NetAddress			_netAddress = {};
 	IocpCoreRef			_iocpCore;
 

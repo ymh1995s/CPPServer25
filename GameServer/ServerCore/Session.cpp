@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "Session.h"
 #include "SocketUtils.h"
 #include "Service.h"
@@ -24,7 +24,7 @@ void Session::Send(SendBufferRef sendBuffer)
 
 	bool registerSend = false;
 
-	// ÇöÀç RegisterSend°¡ °É¸®Áö ¾ÊÀº »óÅÂ¶ó¸é, °É¾îÁØ´Ù
+	// í˜„ì¬ RegisterSendê°€ ê±¸ë¦¬ì§€ ì•Šì€ ìƒíƒœë¼ë©´, ê±¸ì–´ì¤€ë‹¤
 	{
 		WRITE_LOCK;
 
@@ -38,6 +38,7 @@ void Session::Send(SendBufferRef sendBuffer)
 	}
 }
 
+// í´ë¼ì´ì–¸íŠ¸ ì„œë¹„ìŠ¤ì—ì„œ Connect() ì‚¬ìš©
 bool Session::Connect()
 {
 	return RegisterConnect();
@@ -91,14 +92,15 @@ bool Session::RegisterConnect()
 	if (SocketUtils::SetReuseAddress(_socket, true) == false)
 		return false;
 
-	if (SocketUtils::BindAnyAddress(_socket, 0/*³²´Â°Å*/) == false)
+	if (SocketUtils::BindAnyAddress(_socket, 0/*ë‚¨ëŠ”ê±°*/) == false)
 		return false;
 
-	_connectEvent.Init();
+	_connectEvent.Init(); // IOCP EVENT
 	_connectEvent.owner = shared_from_this(); // ADD_REF
 
 	DWORD numOfBytes = 0;
 	SOCKADDR_IN sockAddr = GetService()->GetNetAddress().GetSockAddr();
+	// â˜…â˜…â˜… ì‹¤ì œ í´ë¼ì´ì–¸íŠ¸ê°€ ì—°ê²°ì´ ë˜ëŠ” ë¶€ë¶„ ConnectEx()
 	if (false == SocketUtils::ConnectEx(_socket, reinterpret_cast<SOCKADDR*>(&sockAddr), sizeof(sockAddr), nullptr, 0, &numOfBytes, &_connectEvent))
 	{
 		int32 errorCode = ::WSAGetLastError();
@@ -163,7 +165,7 @@ void Session::RegisterSend()
 	_sendEvent.Init();
 	_sendEvent.owner = shared_from_this(); // ADD_REF
 
-	// º¸³¾ µ¥ÀÌÅÍ¸¦ sendEvent¿¡ µî·Ï
+	// ë³´ë‚¼ ë°ì´í„°ë¥¼ sendEventì— ë“±ë¡
 	{
 		//WRITE_LOCK;
 
@@ -173,14 +175,15 @@ void Session::RegisterSend()
 			SendBufferRef sendBuffer = _sendQueue.front();
 
 			writeSize += sendBuffer->WriteSize();
-			// TODO : ¿¹¿Ü Ã¼Å©
+			// TODO : ì˜ˆì™¸ ì²´í¬
 
 			_sendQueue.pop();
 			_sendEvent.sendBuffers.push_back(sendBuffer);
 		}
 	}
 
-	// Scatter-Gather (Èğ¾îÁ® ÀÖ´Â µ¥ÀÌÅÍµéÀ» ¸ğ¾Æ¼­ ÇÑ ¹æ¿¡ º¸³½´Ù)
+	// Scatter-Gather (í©ì–´ì ¸ ìˆëŠ” ë°ì´í„°ë“¤ì„ ëª¨ì•„ì„œ í•œ ë°©ì— ë³´ë‚¸ë‹¤)
+	// íŒ¨í‚· ëª¨ì•„ë³´ë‚´ê¸°ì™€ ë‹¤ë¥¸ì ì´ ë­ì§€?
 	vector<WSABUF> wsaBufs;
 	wsaBufs.reserve(_sendEvent.sendBuffers.size());
 	for (SendBufferRef sendBuffer : _sendEvent.sendBuffers)
@@ -211,13 +214,13 @@ void Session::ProcessConnect()
 
 	_connected.store(true);
 
-	// ¼¼¼Ç µî·Ï
+	// ì„¸ì…˜ ë“±ë¡
 	GetService()->AddSession(GetSessionRef());
 
-	// ÄÁÅÙÃ÷ ÄÚµå¿¡¼­ ÀçÁ¤ÀÇ
+	// ì»¨í…ì¸  ì½”ë“œì—ì„œ ì¬ì •ì˜
 	OnConnected();
 
-	// ¼ö½Å µî·Ï
+	// ìˆ˜ì‹  ë“±ë¡
 	RegisterRecv();
 }
 
@@ -225,7 +228,7 @@ void Session::ProcessDisconnect()
 {
 	_disconnectEvent.owner = nullptr; // RELEASE_REF
 
-	OnDisconnected(); // ÄÁÅÙÃ÷ ÄÚµå¿¡¼­ ÀçÁ¤ÀÇ
+	OnDisconnected(); // ì»¨í…ì¸  ì½”ë“œì—ì„œ ì¬ì •ì˜
 	GetService()->ReleaseSession(GetSessionRef());
 }
 
@@ -246,17 +249,17 @@ void Session::ProcessRecv(int32 numOfBytes)
 	}
 
 	int32 dataSize = _recvBuffer.DataSize();
-	int32 processLen = OnRecv(_recvBuffer.ReadPos(), dataSize); // ÄÁÅÙÃ÷ ÄÚµå¿¡¼­ ÀçÁ¤ÀÇ
+	int32 processLen = OnRecv(_recvBuffer.ReadPos(), dataSize); // ì»¨í…ì¸  ì½”ë“œì—ì„œ ì¬ì •ì˜
 	if (processLen < 0 || dataSize < processLen || _recvBuffer.OnRead(processLen) == false)
 	{
 		Disconnect(L"OnRead Overflow");
 		return;
 	}
 	
-	// Ä¿¼­ Á¤¸®
+	// ì»¤ì„œ ì •ë¦¬
 	_recvBuffer.Clean();
 
-	// ¼ö½Å µî·Ï
+	// ìˆ˜ì‹  ë“±ë¡
 	RegisterRecv();
 }
 
@@ -271,7 +274,7 @@ void Session::ProcessSend(int32 numOfBytes)
 		return;
 	}
 
-	// ÄÁÅÙÃ÷ ÄÚµå¿¡¼­ ÀçÁ¤ÀÇ
+	// ì»¨í…ì¸  ì½”ë“œì—ì„œ ì¬ì •ì˜
 	OnSend(numOfBytes);
 
 	WRITE_LOCK;
@@ -317,16 +320,16 @@ int32 PacketSession::OnRecv(BYTE* buffer, int32 len)
 	while (true)
 	{
 		int32 dataSize = len - processLen;
-		// ÃÖ¼ÒÇÑ Çì´õ´Â ÆÄ½ÌÇÒ ¼ö ÀÖ¾î¾ß ÇÑ´Ù
+		// ìµœì†Œí•œ í—¤ë”ëŠ” íŒŒì‹±í•  ìˆ˜ ìˆì–´ì•¼ í•œë‹¤
 		if (dataSize < sizeof(PacketHeader))
 			break;
 
 		PacketHeader header = *(reinterpret_cast<PacketHeader*>(&buffer[processLen]));
-		// Çì´õ¿¡ ±â·ÏµÈ ÆĞÅ¶ Å©±â¸¦ ÆÄ½ÌÇÒ ¼ö ÀÖ¾î¾ß ÇÑ´Ù
+		// í—¤ë”ì— ê¸°ë¡ëœ íŒ¨í‚· í¬ê¸°ë¥¼ íŒŒì‹±í•  ìˆ˜ ìˆì–´ì•¼ í•œë‹¤
 		if (dataSize < header.size)
 			break;
 
-		// ÆĞÅ¶ Á¶¸³ ¼º°ø
+		// íŒ¨í‚· ì¡°ë¦½ ì„±ê³µ
 		OnRecvPacket(&buffer[processLen], header.size);
 
 		processLen += header.size;
