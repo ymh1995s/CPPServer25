@@ -47,7 +47,8 @@ namespace DummyClient.Session
                 foreach (var session in _sessions)
                 {
                     C_MOVE dummyMovePacket = new C_MOVE();
-                    Console.WriteLine( "Send 1Packet To Server");
+                    Console.WriteLine(dummyMovePacket.Info.ObjectId); 
+                    session.Value.Send(dummyMovePacket);
                 }
             }
         }

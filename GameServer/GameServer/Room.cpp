@@ -9,11 +9,23 @@ RoomRef GRoom = make_shared<Room>();
 
 Room::Room()
 {
-
+	tCountThread = jthread(&Room::pktCountPrint, this);
 }
 
 Room::~Room()
 {
+
+}
+
+void Room::pktCountPrint()
+{
+	while (true)
+	{
+		cout << recvCount << " " << sendCount << endl; 
+		recvCount.store(0);
+		sendCount.store(0);
+		this_thread::sleep_for(1s);
+	}
 
 }
 
@@ -124,7 +136,8 @@ bool Room::HandleLeavePlayer(PlayerRef player)
 
 void Room::HandleMove(Protocol::C_MOVE pkt)
 {
-	const uint64 objectId = pkt.info().object_id();
+	recvCount.fetch_add(1);
+	uint64 objectId = pkt.info().object_id();
 	if (_objects.find(objectId) == _objects.end())
 		return;
 
@@ -146,7 +159,6 @@ void Room::HandleMove(Protocol::C_MOVE pkt)
 
 void Room::UpdateTick()
 {
-	cout << "ROOM FLUSH" << endl;
 	DoTimer(100, &Room::UpdateTick);
 }
 
@@ -188,6 +200,7 @@ void Room::Broadcast(SendBufferRef sendBuffer, uint64 exceptId)
 {
 	for (auto& item : _objects)
 	{
+		sendCount.fetch_add(1);
 		PlayerRef player = dynamic_pointer_cast<Player>(item.second);
 		if (player == nullptr)
 			continue;

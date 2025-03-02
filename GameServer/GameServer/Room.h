@@ -29,6 +29,12 @@ private:
 
 private:
 	unordered_map<uint64, ObjectRef> _objects;
+
+private:
+	atomic<int32> recvCount;
+	atomic<int32> sendCount;
+	jthread tCountThread;
+	void pktCountPrint();
 };
 
 extern RoomRef GRoom;

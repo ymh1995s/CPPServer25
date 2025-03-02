@@ -32,7 +32,8 @@ namespace DummyClient.Session
 
         enum MsgId
         {
-            C_MOVE
+            CENTERGAME = 1002,
+            CMOVE = 1008
         }
 
         public void Send(IMessage packet)
@@ -50,6 +51,8 @@ namespace DummyClient.Session
 
         public override void OnConnected(EndPoint endPoint)
         {
+            C_ENTER_GAME enterpkt = new C_ENTER_GAME();
+            Send(enterpkt);
             Console.WriteLine($"client {endPoint} is connected to the server. Here is client");
         }
 
